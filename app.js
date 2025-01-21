@@ -3,7 +3,6 @@ const config = require("config");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const mainRouter = require("./routes/index.routes");
-const viewRouter = require("./routes/view.routes");
 const app = express();
 
 const PORT = config.get("port") || 3300;
@@ -11,7 +10,6 @@ const PORT = config.get("port") || 3300;
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api", mainRouter);
-app.use("/", viewRouter);
 
 app.listen(PORT, async () => {
   try {
