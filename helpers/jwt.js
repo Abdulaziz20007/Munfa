@@ -2,6 +2,10 @@ const jwt = require("jsonwebtoken");
 const config = require("config");
 
 const generateTokens = (payload, role) => {
+  if (payload.exp) {
+    delete payload.exp;
+  }
+
   const accessToken = jwt.sign(payload, config.get(`jwt${role}Secret`), {
     expiresIn: config.get(`accessTokenTime`),
   });

@@ -10,7 +10,7 @@ const AdminGuard = async (req, res, next) => {
     return res.status(401).send({ msg: "Token topilmadi" });
   if (token.split(" ")[1].split(".").length !== 3)
     return res.status(401).send({ msg: "Token noto'g'ri" });
-  if (verifyAccessToken(token.split(" ")[1], "Admin"))
+  if (!verifyAccessToken(token.split(" ")[1], "Admin"))
     return res.status(401).send({ msg: "Token noto'g'ri" });
 
   const admin = verifyAccessToken(token.split(" ")[1], "Admin");
