@@ -1,18 +1,23 @@
 const jwt = require("jsonwebtoken");
 const config = require("config");
+const { errorHandler } = require("./error_handler");
 
 const generateTokens = (payload, role) => {
-  if (payload.exp) {
-    delete payload.exp;
-  }
+  try {
+    if (payload.exp) {
+      delete payload.exp;
+    }
 
-  const accessToken = jwt.sign(payload, config.get(`jwt${role}Secret`), {
-    expiresIn: config.get(`accessTokenTime`),
-  });
-  const refreshToken = jwt.sign(payload, config.get(`jwt${role}Secret`), {
-    expiresIn: config.get(`refreshTokenTime`),
-  });
-  return { accessToken, refreshToken };
+    const accessToken = jwt.sign(payload, config.get(`jwt${role}Secret`), {
+      expiresIn: config.get(`accessTokenTime`),
+    });
+    const refreshToken = jwt.sign(payload, config.get(`jwt${role}Secret`), {
+      expiresIn: config.get(`refreshTokenTime`),
+    });
+    return { accessToken, refreshToken };
+  } catch (error) {
+    errorHandler(error, res);
+  }
 };
 
 const verifyAccessToken = (token, role) => {
