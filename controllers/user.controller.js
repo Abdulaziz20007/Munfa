@@ -5,6 +5,7 @@ const config = require("config");
 const { sendOtp } = require("../service/sendOtp");
 const { createOtp } = require("../helpers/createOtp");
 const { errorHandler } = require("../helpers/error_handler");
+const checkIsRegistered = require("../helpers/isRegistered");
 
 const identify = async (req, res) => {
   try {
@@ -17,6 +18,7 @@ const identify = async (req, res) => {
       return res.status(302).send({
         found: true,
         isVerified: user.isVerified,
+        isRegistered: await checkIsRegistered(phone, res),
       });
 
     res.status(404).send({ found: false });
@@ -48,7 +50,7 @@ const create = async (req, res) => {
       otpSentAt,
       otpExpiry,
     });
-    res.status(201).send({ msg: "Tasdiqlash kodi yuborildi" });
+    res.status(201).send({ msg: "Tasdiqlash kodi yuborildi", otpId });
   } catch (error) {
     errorHandler(error, res);
   }
@@ -197,7 +199,9 @@ const requestOtp = async (req, res) => {
       return res.status(400).send({ msg: "Telefon raqam avval tasdiqlangan" });
 
     if (new Date() < new Date(user.otpExpiry))
-      return res.status(400).send({ msg: "Tasdiqlash kodi avval yuborilgan" });
+      return res
+        .status(400)
+        .send({ msg: "Tasdiqlash kodi avval yuborilgan", otpId: user.otpId });
 
     const { otp, otpId, otpSentAt, otpExpiry } = createOtp();
 
@@ -278,6 +282,12 @@ const updateUser = async (req, res) => {
   }
 };
 
+const getUserById = async (req, res) => {
+  const { id } = req.user;
+  const user = await User.findById(id).select("-password -refreshToken -otp -otpId -otpSentAt -otpExpiry");
+  res.status(200).send(user);
+};
+
 module.exports = {
   identify,
   create,
@@ -289,4 +299,5 @@ module.exports = {
   verifyOtp,
   changePassword,
   updateUser,
+  getUserById,
 };

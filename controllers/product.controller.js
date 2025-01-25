@@ -10,7 +10,7 @@ const getProducts = async (req, res) => {
   }
 };
 
-const getProduct = async (req, res) => {
+const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     res.status(200).send(product);
@@ -19,4 +19,4 @@ const getProduct = async (req, res) => {
   }
 };
 
-module.exports = { getProducts, getProduct };
+module.exports = { getProducts, getProductById };

@@ -30,4 +30,20 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-module.exports = { getOrders, getOrderById, updateOrderStatus };
+const cancelOrderByAdmin = async (req, res) => {
+  try {
+    await Order.findByIdAndUpdate(req.params.id, {
+      status: "cancelled by admin",
+    });
+    res.status(200).send({ msg: "Buyurtma bekor qilindi" });
+  } catch (error) {
+    errorHandler(error, res);
+  }
+};
+
+module.exports = {
+  getOrders,
+  getOrderById,
+  updateOrderStatus,
+  cancelOrderByAdmin,
+};
