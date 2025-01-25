@@ -6,6 +6,9 @@ const adminSchema = new Schema({
   username: { type: String, unique: true },
   password: String,
   refreshToken: String,
+},
+{
+  timestamps: true,
 });
 
 const Admin = model("Admin", adminSchema);

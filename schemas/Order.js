@@ -33,8 +33,15 @@ const orderSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "sold", "cancelled"],
+      enum: ["pending", "sold", "cancelled by user", "cancelled by admin"],
       default: "pending",
+    },
+    address: {
+      type: String,
+      required: true,
+    },
+    comment: {
+      type: String,
     },
   },
   {
