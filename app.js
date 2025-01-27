@@ -10,12 +10,7 @@ const app = express();
 const PORT = config.get("port") || 3300;
 
 // Define allowed origins
-const allowedOrigins = [
-  "http://10.10.3.250:5173",
-  "http://localhost:5173",
-  "http://10.10.3.250:5174",
-  "http://localhost:5174",
-];
+const allowedOrigins = ["*"];
 
 app.use(
   cors({
