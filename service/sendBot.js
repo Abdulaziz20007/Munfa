@@ -3,37 +3,38 @@ const config = require("config");
 
 const bot = new TelegramBot(config.get("telegram.token"), { polling: false });
 
-const sendOrderMessage = async (orderData) => {
+const sendOrderMessage = async (order) => {
   try {
-    const { customer, phone, address, items, total, link } = orderData;
+    if (!order) {
+      throw new Error("Buyurtma ma'lumotlari noto'g'ri");
+    }
+
+    const { products, address, total, comment, _id, user, createdAt } = order;
 
     const message =
-      `🎁 Yangi Buyurtma!\n\n` +
-      `👤 Customer: ${customer}\n` +
-      `📱 Phone: ${phone}\n` +
-      `📍 Address: ${address || "None"}\n\n` +
-      `📦 Items:\n${items
-        .map((item, index) => `${index + 1}. ${item}`)
+      `🛍 Yangi Buyurtma!\n\n` +
+      `👤 Mijoz: ${user.name || ""} ${user.surname || ""}\n` +
+      `📞 Telefon: ${user.phone || ""}\n` +
+      `📍 Manzil: ${address}\n` +
+      `💭 Izoh: ${comment}\n\n` +
+      `🛒 Mahsulotlar:\n${products
+        .map(
+          (item, index) =>
+            `${index + 1}. ${item.product.name} x${item.quantity} = ${
+              item.priceAtOrder * item.quantity
+            } so'm`
+        )
         .join("\n")}\n\n` +
-      `💰 Total: ${total} so'm`;
-
-    const keyboard = {
-      inline_keyboard: [
-        [
-          {
-            text: "📋 Buyurtma tafsilotlarini ko'rish",
-            url: link,
-          },
-        ],
-      ],
-    };
+      `💰 Jami: ${total} so'm\n` +
+      `📅 Sana: ${new Date(createdAt).toLocaleString()}\n\n` +
+      `<a href="https://example.com/orders/${_id}">📋 Buyurtma tafsilotlarini ko'rish</a>`;
 
     await bot.sendMessage(config.get("telegram.chatId"), message, {
       parse_mode: "HTML",
-      reply_markup: JSON.stringify(keyboard),
+      disable_web_page_preview: true,
     });
   } catch (error) {
-    console.error("Error sending telegram message:", error);
+    console.error("Telegram xabar yuborishda xatolik:", error);
     throw error;
   }
 };

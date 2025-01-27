@@ -6,6 +6,7 @@ const { sendOtp } = require("../service/sendOtp");
 const { createOtp } = require("../helpers/createOtp");
 const { errorHandler } = require("../helpers/error_handler");
 const checkIsRegistered = require("../helpers/isRegistered");
+const jwt = require("../helpers/jwt");
 
 const identify = async (req, res) => {
   try {
@@ -18,39 +19,9 @@ const identify = async (req, res) => {
       return res.status(302).send({
         found: true,
         isVerified: user.isVerified,
-        isRegistered: await checkIsRegistered(phone, res),
       });
 
     res.status(404).send({ found: false });
-  } catch (error) {
-    errorHandler(error, res);
-  }
-};
-
-const create = async (req, res) => {
-  try {
-    const { phone } = req.body;
-    const { isValid, message } = validatePhone(phone);
-    if (!isValid) return res.status(400).send({ msg: message });
-
-    const user = await User.findOne({ phone });
-    if (user)
-      return res
-        .status(400)
-        .send({ msg: "Telefon raqam avval ro'yxatdan o'tgan" });
-
-    const { otp, otpId, otpSentAt, otpExpiry } = createOtp();
-
-    await sendOtp(phone, otp);
-
-    await User.create({
-      phone,
-      otp,
-      otpId,
-      otpSentAt,
-      otpExpiry,
-    });
-    res.status(201).send({ msg: "Tasdiqlash kodi yuborildi", otpId });
   } catch (error) {
     errorHandler(error, res);
   }
@@ -78,16 +49,25 @@ const register = async (req, res) => {
       });
 
     const user = await User.findOne({ phone });
-    if (!user)
+    if (user)
       return res
         .status(400)
-        .send({ msg: "Telefon raqam avval ro'yxatdan o'tmagan" });
-    if (!user.isVerified)
-      return res
-        .status(400)
-        .send({ msg: "Telefon raqam avval tasdiqlanmagan" });
+        .send({ msg: "Telefon raqam avval ro'yxatdan o'tgan" });
 
-    await User.findOneAndUpdate({ phone }, { password, name, surname });
+    const { otp, otpId, otpSentAt, otpExpiry } = createOtp();
+
+    await sendOtp(phone, otp);
+
+    await User.create({
+      phone,
+      password,
+      name,
+      surname,
+      otp,
+      otpId,
+      otpSentAt,
+      otpExpiry,
+    });
     res
       .status(201)
       .send({ msg: "Foydalanuvchi muvaffaqiyatli ro'yxatdan o'tdi" });
@@ -131,6 +111,8 @@ const authenticate = async (req, res) => {
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
+      sameSite: "none",
+      secure: true,
       maxAge: config.get("cookieExpiryTime"),
     });
 
@@ -157,8 +139,10 @@ const refreshUserToken = async (req, res) => {
     const { refreshToken } = req.cookies;
     if (!refreshToken) return res.status(401).send({ msg: "Token topilmadi" });
 
-    const user = verifyRefreshToken(refreshToken, "User");
+    const user = await User.findOne({ refreshToken });
     if (!user) return res.status(401).send({ msg: "Foydalanuvchi topilmadi" });
+
+    console.log(user);
 
     const payload = {
       id: user._id,
@@ -169,12 +153,17 @@ const refreshUserToken = async (req, res) => {
 
     const tokens = generateTokens(payload, "User");
 
-    await User.findByIdAndUpdate(user._id, {
-      refreshToken: tokens.refreshToken,
-    });
+    await User.findOneAndUpdate(
+      { phone: user.phone },
+      {
+        refreshToken: tokens.refreshToken,
+      }
+    );
 
     res.cookie("refreshToken", tokens.refreshToken, {
       httpOnly: true,
+      sameSite: "none",
+      secure: true,
       maxAge: config.get("cookieExpiryTime"),
     });
 
@@ -272,7 +261,7 @@ const updateUser = async (req, res) => {
     const { name, surname } = req.body;
     const { id } = req.user;
 
-    const user = await User.findOne({ id });
+    const user = await User.findOne({ _id: id });
     if (!user) return res.status(401).send({ msg: "Foydalanuvchi topilmadi" });
 
     await User.findByIdAndUpdate(id, { name, surname });
@@ -283,14 +272,16 @@ const updateUser = async (req, res) => {
 };
 
 const getUserById = async (req, res) => {
-  const { id } = req.user;
-  const user = await User.findById(id).select("-password -refreshToken -otp -otpId -otpSentAt -otpExpiry");
-  res.status(200).send(user);
+  const { phone } = req.user;
+  const user = await User.findOne({ phone }).select(
+    "-password -refreshToken -otp -otpId -otpSentAt -otpExpiry"
+  );
+
+  res.status(200).json(user);
 };
 
 module.exports = {
   identify,
-  create,
   register,
   authenticate,
   logoutUser,

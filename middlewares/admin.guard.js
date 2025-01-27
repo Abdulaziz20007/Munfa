@@ -13,6 +13,10 @@ const AdminGuard = async (req, res, next) => {
   if (!verifyAccessToken(token.split(" ")[1], "Admin"))
     return res.status(401).send({ msg: "Token noto'g'ri" });
 
+  if (!req.cookies.refreshToken) {
+    return res.status(401).send({ msg: "Refresh token topilmadi" });
+  }
+
   const admin = verifyAccessToken(token.split(" ")[1], "Admin");
 
   req.admin = admin;

@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const {
   identify,
-  create,
   register,
   authenticate,
   logoutUser,
@@ -18,10 +17,10 @@ const {
   createOrder,
   cancelOrderById,
   getMyOrders,
+  updateCommentAndAddress,
 } = require("../controllers/order.controller");
 
 router.post("/identify", identify);
-router.post("/create", create);
 router.post("/register", register);
 router.post("/login", authenticate);
 router.post("/logout", logoutUser);
@@ -34,6 +33,7 @@ router.get("/me", UserGuard, getUserById);
 
 router.get("/order", UserGuard, getMyOrders);
 router.post("/order", UserGuard, createOrder);
-router.put("/order/:id/cancel", UserGuard, cancelOrderById);
+router.put("/order/:orderNumber/cancel", UserGuard, cancelOrderById);
+router.put("/order/:orderNumber/update", UserGuard, updateCommentAndAddress);
 
 module.exports = router;
