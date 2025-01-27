@@ -10,7 +10,7 @@ const app = express();
 const PORT = config.get("port") || 3300;
 
 // Define allowed origins
-const allowedOrigins = ["*"];
+const allowedOrigins = ["https://munfa.netlify.app"];
 
 app.use(
   cors({
