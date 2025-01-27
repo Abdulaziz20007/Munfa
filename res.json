@@ -1,0 +1,35 @@
+{
+  "allProducts": 100,
+  "allUsers": 100,
+  "allOrders": 100,
+  "profit": {
+    "profitSixMonthAgo": 1000000,
+    "profitFiveMonthAgo": 1000000,
+    "profitFourMonthAgo": 1000000,
+    "profitThreeMonthAgo": 1000000,
+    "profitTwoMonthAgo": 1000000,
+    "profitOneMonthAgo": 1000000,
+    "profitThisMonth": 1000000,
+    "profitPersent": 1000000
+  },
+  "users": {
+    "usersSixMonthAgo": 1000000,
+    "usersFiveMonthAgo": 1000000,
+    "usersFourMonthAgo": 1000000,
+    "usersThreeMonthAgo": 1000000,
+    "usersTwoMonthAgo": 1000000,
+    "usersOneMonthAgo": 1000000,
+    "usersThisMonth": 1000000,
+    "usersPersent": 1000000
+  },
+  "products": {
+    "productsSixMonthAgo": 1000000,
+    "productsFiveMonthAgo": 1000000,
+    "productsFourMonthAgo": 1000000,
+    "productsThreeMonthAgo": 1000000,
+    "productsTwoMonthAgo": 1000000,
+    "productsOneMonthAgo": 1000000,
+    "productsThisMonth": 1000000,
+    "productsPersent": 1000000
+  }
+}

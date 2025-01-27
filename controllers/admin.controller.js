@@ -61,7 +61,6 @@ const logoutAdmin = async (req, res) => {
     const { refreshToken } = req.cookies;
 
     const admin = await Admin.findOne({ refreshToken });
-    console.log(admin);
     if (!admin) return res.status(401).send({ msg: "Admin topilmadi" });
     await Admin.findOneAndUpdate({ refreshToken }, { refreshToken: "" });
     res.clearCookie("refreshToken");

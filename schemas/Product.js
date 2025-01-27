@@ -31,17 +31,13 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
     stock: {
-      type: Boolean,
-      default: true,
+      type: Number,
+      default: 0,
+      min: 0,
     },
     deleted: {
       type: Boolean,
       default: false,
-    },
-    quantity: {
-      type: Number,
-      required: true,
-      min: 0,
     },
   },
   {
