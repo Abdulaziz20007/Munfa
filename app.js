@@ -10,7 +10,11 @@ const app = express();
 const PORT = config.get("port") || 3300;
 
 // Define allowed origins
-const allowedOrigins = ["https://munfa.netlify.app"];
+const allowedOrigins = [
+  "https://munfa.netlify.app", // Production frontend
+  "http://10.10.3.250:5173", // Development IP frontend
+  "http://localhost:5173", // Local development frontend
+];
 
 app.use(
   cors({
@@ -19,7 +23,9 @@ app.use(
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.indexOf(origin) === -1) {
-        return callback(new Error("CORS policy violation"), false);
+        const msg =
+          "The CORS policy for this site does not allow access from the specified Origin.";
+        return callback(new Error(msg), false);
       }
       return callback(null, true);
     },
@@ -33,7 +39,6 @@ app.use(
       "Accept",
       "Accept-Language",
       "Content-Language",
-      "x-requested-with",
     ],
   })
 );
